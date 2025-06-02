@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Lembar Jawaban Ujian</title>
+</head>
+<body>
+  <h1>Lembar Jawaban Ujian</h1>
+  <form id="examForm">
+    <input type="text" name="nama" placeholder="Nama" required><br>
+    <input type="text" name="kelas" placeholder="Kelas" required><br>
+    <input type="text" name="mapel" placeholder="Mata Pelajaran" required><br><br>
+
+    <h3>Soal Pilihan Ganda</h3>
+    <div id="pilgan"></div>
+
+    <h3>Soal Esai</h3>
+    <div id="esai"></div>
+
+    <button type="submit">Kirim Jawaban</button>
+  </form>
+
+  <script>
+    const pilganDiv = document.getElementById('pilgan');
+    for (let i = 1; i <= 30; i++) {
+      pilganDiv.innerHTML += `
+        <label>Soal ${i}: </label>
+        <select name="pg${i}">
+          <option value="A">A</option><option value="B">B</option>
+          <option value="C">C</option><option value="D">D</option>
+          <option value="E">E</option>
+        </select><br>
+      `;
+    }
+
+    const esaiDiv = document.getElementById('esai');
+    for (let i = 1; i <= 5; i++) {
+      esaiDiv.innerHTML += `
+        <label>Esai ${i}:</label><br>
+        <textarea name="esai${i}" rows="4" cols="50"></textarea><br>
+      `;
+    }
+
+    document.getElementById('examForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const payload = {};
+      formData.forEach((value, key) => payload[key] = value);
+
+      const res = await fetch('/api/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await res.json();
+      alert(result.message || 'Jawaban berhasil dikirim.');
+    });
+  </script>
+</body>
+</html>
