@@ -1,14 +1,53 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
+  <meta charset="UTF-8">
   <title>Lembar Jawaban Ujian</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+    }
+
+    input, select, textarea {
+      margin-bottom: 10px;
+      width: 100%;
+    }
+
+    .soal {
+      margin-bottom: 20px;
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 16px;
+      margin-top: 4px;
+      margin-bottom: 8px;
+    }
+
+    .option-inline {
+      display: flex;
+      flex-direction: row-reverse; /* ini membalik: huruf di kiri, radio di kanan */
+      align-items: center;
+      gap: 6px;
+    }
+
+    textarea {
+      width: 100%;
+    }
+  </style>
 </head>
 <body>
   <h1>Lembar Jawaban Ujian</h1>
   <form id="examForm">
-    <input type="text" name="nama" placeholder="Nama" required><br>
-    <input type="text" name="kelas" placeholder="Kelas" required><br>
-    <input type="text" name="mapel" placeholder="Mata Pelajaran" required><br><br>
+    <label>Nama:</label><br>
+    <input type="text" name="nama" required><br>
+
+    <label>Kelas:</label><br>
+    <input type="text" name="kelas" required><br>
+
+    <label>Mata Pelajaran:</label><br>
+    <input type="text" name="mapel" required><br><br>
 
     <h3>Soal Pilihan Ganda</h3>
     <div id="pilgan"></div>
@@ -22,21 +61,30 @@
   <script>
     const pilganDiv = document.getElementById('pilgan');
     for (let i = 1; i <= 30; i++) {
+      let radioHTML = '';
+      ['A', 'B', 'C', 'D', 'E'].forEach(opt => {
+        radioHTML += `
+          <label class="option-inline">
+            <input type="radio" name="pg${i}" value="${opt}" required>
+            ${opt}
+          </label>
+        `;
+      });
       pilganDiv.innerHTML += `
-        <label>Soal ${i}: </label>
-        <select name="pg${i}">
-          <option value="A">A</option><option value="B">B</option>
-          <option value="C">C</option><option value="D">D</option>
-          <option value="E">E</option>
-        </select><br>
+        <div class="soal">
+          <label>Soal ${i}:</label>
+          <div class="radio-group">${radioHTML}</div>
+        </div>
       `;
     }
 
     const esaiDiv = document.getElementById('esai');
     for (let i = 1; i <= 5; i++) {
       esaiDiv.innerHTML += `
-        <label>Esai ${i}:</label><br>
-        <textarea name="esai${i}" rows="4" cols="50"></textarea><br>
+        <div class="soal">
+          <label>Esai ${i}:</label><br>
+          <textarea name="esai${i}" rows="4" required></textarea>
+        </div>
       `;
     }
 
@@ -46,14 +94,18 @@
       const payload = {};
       formData.forEach((value, key) => payload[key] = value);
 
-      const res = await fetch('/api/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+      try {
+        const res = await fetch('/api/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
 
-      const result = await res.json();
-      alert(result.message || 'Jawaban berhasil dikirim.');
+        const result = await res.json();
+        alert(result.message || 'Jawaban berhasil dikirim.');
+      } catch (error) {
+        alert('Gagal mengirim jawaban. Silakan coba lagi.');
+      }
     });
   </script>
 </body>
